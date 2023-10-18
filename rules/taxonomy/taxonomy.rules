@@ -1,0 +1,31 @@
+rule all_taxonomy:
+    input:
+        TARGET_TAXONOMY
+
+rule taxonomy_export:
+    input:
+        DENOISE_DIR + "/taxonomy/classification.qza"
+    params:
+        DENOISE_DIR + "/taxonomy"
+    output:
+        DENOISE_DIR + "/taxonomy/taxonomy.tsv"
+    shell:
+        """
+        qiime tools export \
+        --input-path {input} \
+        --output-path {params}
+        """ 
+
+rule get_taxonomy:
+    input:
+        classifier = config["taxonomy"]["classifier_fp"],
+        rep_seq = DENOISE_DIR + "/representative-seqs.qza"
+    output:
+        DENOISE_DIR + "/taxonomy/classification.qza"
+    shell:
+        """
+        qiime feature-classifier classify-sklearn \
+        --i-classifier {input.classifier} \
+        --i-reads {input.rep_seq} \
+        --o-classification {output}
+        """

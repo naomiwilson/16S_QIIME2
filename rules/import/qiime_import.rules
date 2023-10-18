@@ -1,0 +1,29 @@
+rule all_qiime_import:
+    input:
+        TARGET_QIIME_IMPORT
+
+rule get_demux_qzv:
+    input:
+        QIIME_OUTPUT_DIR + "/demux.qza"
+    output:
+        QIIME_OUTPUT_DIR + "/demux.qzv"
+    shell:
+        """
+        qiime demux summarize \
+        --i-data {input} \
+        --o-visualization {output}    
+        """
+
+rule get_demux_qza:
+    input: 
+        PROJECT_DIR + "/manifest.csv"
+    output:
+        QIIME_OUTPUT_DIR + "/demux.qza"
+    shell:
+        """
+        qiime tools import \
+        --type 'SampleData[PairedEndSequencesWithQuality]' \
+        --input-path {input} \
+        --output-path {output} \
+        --input-format PairedEndFastqManifestPhred33 
+        """

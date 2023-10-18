@@ -1,0 +1,42 @@
+rule all_tree:
+    input: TARGET_TREE
+
+rule rooted_tree:
+    input: DENOISE_DIR + "/unrooted-tree.qza"
+    output: DENOISE_DIR + "/rooted-tree.qza"
+    shell:
+        """
+        qiime phylogeny midpoint-root \
+        --i-tree {input} \
+        --o-rooted-tree {output}
+        """
+        
+rule unrooted_tree:
+    input: DENOISE_DIR + "/masked-aligned-rep-seqs.qza"
+    output: DENOISE_DIR + "/unrooted-tree.qza"        
+    shell:
+        """
+        qiime phylogeny fasttree \
+        --i-alignment {input} \
+        --o-tree {output}
+        """
+
+rule mask:
+    input: DENOISE_DIR + "/aligned-rep-seqs.qza"
+    output: DENOISE_DIR + "/masked-aligned-rep-seqs.qza"
+    shell:
+        """
+        qiime alignment mask \
+        --i-alignment {input} \
+        --o-masked-alignment {output}
+        """
+
+rule alignment:
+    input: DENOISE_DIR + "/representative-seqs.qza"
+    output: DENOISE_DIR + "/aligned-rep-seqs.qza"
+    shell:
+        """
+        qiime alignment mafft \
+        --i-sequences {input} \
+        --o-alignment {output}
+        """
